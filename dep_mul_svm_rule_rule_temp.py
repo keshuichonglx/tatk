@@ -14,10 +14,10 @@ import copy
 
 root_dir = os.path.dirname(__file__)
 sys.path.insert(0, root_dir)
-from tatk.dialog_agent import PipelineAgent, BiSession
-from tatk.nlu.svm.multiwoz.nlu import SVMNLU
+from tatk.dialog_agent import PipelineAgent
+from tatk.nlu.svm.multiwoz import SVMNLU
 from tatk.dst.rule.multiwoz import RuleDST
-from tatk.policy.rule.multiwoz.rule import Rule
+from tatk.policy.rule.multiwoz import Rule
 from tatk.nlg.template_nlg.multiwoz import TemplateNLG
 
 from DeployClient import DeployClient, FunctionRunError, MyLock
