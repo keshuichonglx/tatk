@@ -16,8 +16,7 @@ root_dir = os.path.dirname(__file__)
 sys.path.insert(0, root_dir)
 from tatk.dialog_agent import PipelineAgent
 from tatk.nlu.svm.camrest import SVMNLU
-# TODO：rule dst
-from tatk.dst.rule.multiwoz import RuleDST
+from tatk.dst.rule.camrest.state_tracker import RuleDST
 from tatk.policy.rule.camrest import Rule
 from tatk.nlg.template_nlg.camrest import TemplateNLG
 
