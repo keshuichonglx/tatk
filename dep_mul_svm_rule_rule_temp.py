@@ -90,14 +90,14 @@ def inference(input: dict, buffer: dict) -> (dict, dict):
     sys_agent = PipelineAgent(nlu, dst, policy, nlg)
     try:
         sys_agent.tracker.state = buffer
-        reqt = sys_agent.response(input['post'])
+        resp = sys_agent.response(input['post'])
         new_buffer = copy.deepcopy(sys_agent.tracker.state)
     except Exception:
         raise FunctionRunError('running error')
 
     print('output state:' + str(new_buffer))
     # back
-    output = {'reqt': reqt}
+    output = {'resp': resp}
 
     return output, new_buffer
 
