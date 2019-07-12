@@ -4,7 +4,9 @@
 | 后台DEMO中控 | 166.111.7.192:9999 | 已部署 | http://coai.cs.tsinghua.edu.cn/deploy |
 | DEMO:chat | 118.192.65.44:9999 | 已部署 ||
 | DEMO:multiwoz_svm_rule_rule_temp | 115.182.62.169:7777 | 已部署 | |
-| DEMO:camrest_svm_rule_rule_temp | 115.182.62.169:7778 | 部署中 | |
+| DEMO:camrest_svm_rule_rule_temp | 115.182.62.169:7778 | 已部署 | |
+| DEMO:multiwoz_bert_rule_rule_temp | 115.182.62.169:7779 | 已部署 | |
+| DEMO:camrest_bert_rule_rule_temp | 115.182.62.169:7780 | 已部署 | |
 
 # 2. 接口
 ## 2.0 基本约定
