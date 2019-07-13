@@ -7,6 +7,8 @@
 | DEMO:camrest_svm_rule_rule_temp | 115.182.62.169:7778 | 已部署 | |
 | DEMO:multiwoz_bert_rule_rule_temp | 115.182.62.169:7779 | 已部署 | |
 | DEMO:camrest_bert_rule_rule_temp | 115.182.62.169:7780 | 已部署 | |
+| DEMO:multiwoz_sequicity | 115.182.62.169:7781 | 已部署 | |
+| DEMO:camrest_sequicity | 115.182.62.169:7782 | 已部署 | |
 
 # 2. 接口
 ## 2.0 基本约定
@@ -50,25 +52,14 @@ model = chat
 }
 ```
 
-## 2.2 multiwoz_svm_rule_rule_temp
-model = multiwoz_svm_rule_rule_temp
-
-**发送**
-```json
-{
-    "post": "post utterance"
-}
-```
-
-**返回**
-```json
-{
-    "resp": "request utterance"
-}
-```
-
-## 2.3 camrest_svm_rule_rule_temp
-model = camrest_svm_rule_rule_temp
+## 2.2 multiwoz and camrest DEMO
+**model**
+- multiwoz_svm_rule_rule_temp
+- camrest_svm_rule_rule_temp
+- multiwoz_bert_rule_rule_temp
+- camrest_bert_rule_rule_temp
+- multiwoz_sequicity
+- camrest_sequicity
 
 **发送**
 ```json
