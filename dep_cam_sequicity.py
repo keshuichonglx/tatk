@@ -23,9 +23,17 @@ app = DeployClient(module_name=__name__, port=7782, max_items=1000, expire_sec=6
 
 # 这里进行模型的实例化或一些模型必要的加载和初始化工作
 mod = Sequicity()
-state_ini = copy.deepcopy(mod.kw_ret)
-
 model_lock = MyLock()
+
+
+def update_x2y(x: dict, y: dict):
+    dkeys = ['prev_z_len', 'prev_z_input', 'prev_z_input_np']
+    for key in dkeys:
+        if key in x.keys():
+            y[key] = copy.deepcopy(x[key])
+        elif key in y.keys():
+            del y[key]
+    return y
 
 
 @app.inference_buffer('camrest_sequicity')
@@ -34,18 +42,16 @@ def inference(input: dict, buffer: dict) -> (dict, dict):
     if 'post' not in input.keys():
         raise FunctionRunError('Missing argument in input')
 
-    # 如果是第一轮，那么给一个初始默认的空dict
-    if not buffer:
-        print('ini new state')
-        buffer = copy.deepcopy(state_ini)
     print('input state :' + str(buffer))
 
     # 开始执行
     model_lock.enter()
     try:
-        mod.kw_ret = buffer
+        mod.kw_ret = update_x2y(buffer, mod.kw_ret)
+
         resp = mod.response(input['post'])
-        new_buffer = copy.deepcopy(mod.kw_ret)
+
+        new_buffer = update_x2y(mod.kw_ret, buffer)
     except Exception:
         raise FunctionRunError('running error')
     finally:
