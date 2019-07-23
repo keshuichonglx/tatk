@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 
 """
-@File    :   dep_svm_rule_rule_temp
-@Time    :   2019-07-10
+@File    :   dep_mul_mdbt_rule_temp
+@Time    :   2019-07-23
 @Software:   PyCharm
 @Author  :   Li Xiang
 @Desc    :   
@@ -15,19 +15,19 @@ import copy
 root_dir = os.path.dirname(__file__)
 sys.path.insert(0, root_dir)
 from tatk.dialog_agent import PipelineAgent
-from tatk.nlu.svm.multiwoz import SVMNLU
-from tatk.dst.rule.multiwoz import RuleDST
+
+from tatk.dst.mdbt.multiwoz.mdbt import MultiWozMDBT
 from tatk.policy.rule.multiwoz import Rule
 from tatk.nlg.template_nlg.multiwoz import TemplateNLG
 
 from DeployClient import DeployClient, FunctionRunError, MyLock
 
 # 这里设置服务启动相关设置,port=开放的端口,max_items=最大缓存数据条数,expire_sec=缓存超时时间(秒)
-app = DeployClient(module_name=__name__, port=7777, max_items=1000, expire_sec=600)
+app = DeployClient(module_name=__name__, port=7790, max_items=1000, expire_sec=600)
 
 # 这里进行模型的实例化或一些模型必要的加载和初始化工作
-nlu = SVMNLU('usr', model_file=os.path.join(root_dir, 'res/svm_multiwoz_usr.zip'))
-dst = RuleDST()
+nlu = None
+dst = MultiWozMDBT()
 policy = Rule()
 nlg = TemplateNLG(is_user=False)
 sys_agent = PipelineAgent(nlu, dst, policy, nlg)
@@ -36,7 +36,7 @@ state_policy_ini = copy.deepcopy(sys_agent.policy.policy.last_state)
 
 model_lock = MyLock()
 
-@app.inference_buffer('multiwoz_svm_rule_rule_temp')
+@app.inference_buffer('multiwoz_mdbt_rule_temp')
 def inference(input: dict, buffer: dict) -> (dict, dict):
     # 这里通过input作为输入，计算得到output结果
     if 'post' not in input.keys():

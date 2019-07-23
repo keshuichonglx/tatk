@@ -11,6 +11,8 @@
 
 import datetime
 import threading
+import multiprocessing as mp
+import threading as th
 import copy
 from flask import Flask, request, Response, jsonify
 #Response(json.dumps(result),  mimetype='application/json')
@@ -206,7 +208,7 @@ class ExpireDict(object):
     def __time_stamp():
         return datetime.datetime.now().timestamp()
 
-
+'''
 class MyLock(object):
     def __init__(self, num=1):
         if num <= 1:
@@ -219,9 +221,52 @@ class MyLock(object):
 
     def leave(self):
         self.__lock.release()
+'''
+
+class MyLock(object):
+    def __init__(self):
+        # Create global parallelism locks to avoid racing issues with parallel
+        # bars works only if fork available (Linux/MacOSX, but not Windows)
+        self.create_mp_lock()
+        self.create_th_lock()
+        cls = type(self)
+        self.locks = [lk for lk in [cls.mp_lock, cls.th_lock] if lk is not None]
+
+    def enter(self):
+        for lock in self.locks:
+            lock.acquire()
+
+    def leave(self):
+        for lock in self.locks[::-1]:  # Release in inverse order of acquisition
+            lock.release()
+
+    def __enter__(self):
+        self.enter()
+
+    def __exit__(self, *exc):
+        self.leave()
+
+    @classmethod
+    def create_mp_lock(cls):
+        if not hasattr(cls, 'mp_lock'):
+            try:
+                cls.mp_lock = mp.RLock()  # multiprocessing lock
+            except ImportError:  # pragma: no cover
+                cls.mp_lock = None
+            except OSError:  # pragma: no cover
+                cls.mp_lock = None
+
+    @classmethod
+    def create_th_lock(cls):
+        if not hasattr(cls, 'th_lock'):
+            try:
+                cls.th_lock = th.RLock()  # thread lock
+            except OSError:  # pragma: no cover
+                cls.th_lock = None
 
 
 def test():
+    '''
     aa = ExpireDict(max_items=4, expire_sec=3)
     aa['1'] = 123
     aa['2'] = "eee"
@@ -233,6 +278,10 @@ def test():
         print(b)
 
     print(aa)
+    '''
+    aa = MyLock()
+    with aa:
+        print('sss')
 
 
 if __name__ == '__main__':
