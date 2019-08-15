@@ -18,7 +18,7 @@ from tatk.dialog_agent import PipelineAgent
 
 from tatk.dst.mdbt.multiwoz.mdbt import MultiWozMDBT
 from tatk.policy.rule.multiwoz import Rule
-from tatk.nlg.template_nlg.multiwoz import TemplateNLG
+from tatk.nlg.template.multiwoz import TemplateNLG
 
 from DeployClient import DeployClient, FunctionRunError, MyLock
 
@@ -26,38 +26,55 @@ from DeployClient import DeployClient, FunctionRunError, MyLock
 app = DeployClient(module_name=__name__, port=7790, max_items=1000, expire_sec=600)
 
 # 这里进行模型的实例化或一些模型必要的加载和初始化工作
-nlu = None
+
 dst = MultiWozMDBT()
 policy = Rule()
 nlg = TemplateNLG(is_user=False)
-sys_agent = PipelineAgent(nlu, dst, policy, nlg)
+# sys_agent = PipelineAgent(nlu, dst, policy, nlg)
+sys_agent = PipelineAgent(None, dst, policy, None)
 state_tracker_ini = copy.deepcopy(sys_agent.tracker.state)
 state_policy_ini = copy.deepcopy(sys_agent.policy.policy.last_state)
 
 model_lock = MyLock()
 
+
 @app.inference_buffer('multiwoz_mdbt_rule_temp')
 def inference(input: dict, buffer: dict) -> (dict, dict):
+    buffer.setdefault('states', [])
+
+    if input.get('recall', False):
+        print('[opt: recall]')
+        model_lock.enter()
+        if buffer['states']:
+            del buffer['states'][-1]
+        new_buffer = copy.deepcopy(buffer)
+        output = {'turns': len(buffer['states'])}
+        model_lock.leave()
+        return output, new_buffer
+
     # 这里通过input作为输入，计算得到output结果
     if 'post' not in input.keys():
         raise FunctionRunError('Missing argument in input')
 
-    # 如果是第一轮，那么给一个初始默认的空dict
-    if not buffer:
-        print('ini new state')
-        buffer = copy.deepcopy({'tra': state_tracker_ini, 'pol': state_policy_ini})
-
-    print('input state :' + str(buffer))
-
-    # 开始执行
+    print('[opt: normal]')
     model_lock.enter()
+    # 获得当前轮次的状态
+    if buffer['states']:
+        cur_state = buffer['states'][-1]
+    else:
+        print('ini new state')
+        cur_state = copy.deepcopy({'tra': state_tracker_ini, 'pol': state_policy_ini})
+
+    print('input state :' + str(cur_state))
     try:
-        sys_agent.tracker.state = buffer['tra']
-        sys_agent.policy.policy.last_state = buffer['pol']
+        sys_agent.tracker.state = cur_state['tra']
+        sys_agent.policy.policy.last_state = cur_state['pol']
 
-        resp = sys_agent.response(input['post'])
+        action = sys_agent.response(input['post'])
+        resp = nlg.generate(action)
 
-        new_buffer = copy.deepcopy({'tra': sys_agent.tracker.state, 'pol': sys_agent.policy.policy.last_state})
+        buffer['states'].append({'tra': sys_agent.tracker.state, 'pol': sys_agent.policy.policy.last_state})
+        new_buffer = copy.deepcopy(buffer)
     except Exception:
         raise FunctionRunError('running error')
     finally:
@@ -65,9 +82,10 @@ def inference(input: dict, buffer: dict) -> (dict, dict):
 
     print('output state:' + str(new_buffer))
     # back
-    output = {'resp': resp}
+    output = {'resp': resp, 'action': action}
 
     return output, new_buffer
+
 
 if __name__ == '__main__':
     app.run()

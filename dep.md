@@ -5,11 +5,12 @@
 | DEMO:chat | 118.192.65.44:9999 | 已部署 ||
 | DEMO:multiwoz_svm_rule_rule_temp | 115.182.62.169:7777 | 已部署 | |
 | DEMO:camrest_svm_rule_rule_temp | 115.182.62.169:7778 | 已部署 | |
-| DEMO:multiwoz_bert_rule_rule_temp | 115.182.62.169:7779 | 已暂停 | |
-| DEMO:camrest_bert_rule_rule_temp | 115.182.62.169:7780 | 已暂停 | |
 | DEMO:multiwoz_sequicity | 115.182.62.169:7781 | 已部署 | |
 | DEMO:camrest_sequicity | 115.182.62.169:7782 | 已部署 | |
 | DEMO:multiwoz_mdbt_rule_temp | 115.182.62.169:7790 | 已部署 | |
+| DEMO:multiwoz_bert_rule_rule_temp | 115.182.62.169:7779 | 已暂停 | |
+| DEMO:camrest_bert_rule_rule_temp | 115.182.62.169:7780 | 已暂停 | |
+
 
 # 2. 接口
 ## 2.0 基本约定
@@ -54,11 +55,9 @@ model = chat
 ```
 
 ## 2.2 multiwoz and camrest DEMO
+
+### 2.2.1 文本 -> 文本
 **model**
-- multiwoz_svm_rule_rule_temp
-- camrest_svm_rule_rule_temp
-- multiwoz_bert_rule_rule_temp
-- camrest_bert_rule_rule_temp
 - multiwoz_sequicity
 - camrest_sequicity
 
@@ -75,3 +74,76 @@ model = chat
     "resp": "request utterance"
 }
 ```
+
+### 2.2.2 文本 -> 文本+action
+**model**
+- multiwoz_svm_rule_rule_temp
+- camrest_svm_rule_rule_temp
+- multiwoz_mdbt_rule_temp
+
+**发送**
+```json
+{
+    "post": "post utterance"
+}
+```
+
+**返回**
+```json
+{
+    "resp": "request utterance",
+    "action": {...}
+}
+```
+
+### 2.2.3 usr_DA -> 文本+action
+**model**
+- multiwoz_svm_rule_rule_temp
+- camrest_svm_rule_rule_temp
+
+**发送**
+```json
+{
+    "da": {...}
+}
+```
+
+**返回**
+```json
+{
+    "resp": "request utterance",
+    "action": {...}
+}
+```
+
+### 2.2.4 recall
+**model**
+- multiwoz_sequicity
+- camrest_sequicity
+- multiwoz_svm_rule_rule_temp
+- camrest_svm_rule_rule_temp
+- multiwoz_mdbt_rule_temp
+
+**发送**
+```json
+{
+    "recall": true
+}
+```
+
+**返回**
+```json
+{
+    "turns": n
+}
+```
+n为剩余可回滚轮次
+
+# 20190815 模型部署增加功能支持
+|model|da输入|action输出|recall|
+|:---|:---|:---|:---|
+|multiwoz_sequicity|`no`|`no`|`yes`|
+|camrest_sequicity|`no`|`no`|`yes`|
+|multiwoz_svm_rule_rule_temp|`yes`|`yes`|`yes`|
+|camrest_svm_rule_rule_temp|`yes`|`yes`|`yes`|
+|multiwoz_mdbt_rule_temp|`no`|`yes`|`yes`|

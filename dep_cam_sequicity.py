@@ -38,20 +38,39 @@ def update_x2y(x: dict, y: dict):
 
 @app.inference_buffer('camrest_sequicity')
 def inference(input: dict, buffer: dict) -> (dict, dict):
+    buffer.setdefault('states', [])
+
+    if input.get('recall', False):
+        print('[opt: recall]')
+        model_lock.enter()
+        if buffer['states']:
+            del buffer['states'][-1]
+        new_buffer = copy.deepcopy(buffer)
+        output = {'turns': len(buffer['states'])}
+        model_lock.leave()
+        return output, new_buffer
+
     # 这里通过input作为输入，计算得到output结果
     if 'post' not in input.keys():
         raise FunctionRunError('Missing argument in input')
 
-    print('input state :' + str(buffer))
-
-    # 开始执行
+    print('[opt: normal]')
     model_lock.enter()
+    # 获得当前轮次的状态
+    if buffer['states']:
+        cur_state = buffer['states'][-1]
+    else:
+        print('ini new state')
+        cur_state = {}
+
+    print('input state :' + str(cur_state))
     try:
-        mod.kw_ret = update_x2y(buffer, mod.kw_ret)
+        mod.kw_ret = update_x2y(cur_state, mod.kw_ret)
 
         resp = mod.response(input['post'])
 
-        new_buffer = update_x2y(mod.kw_ret, buffer)
+        buffer['states'].append(update_x2y(mod.kw_ret, cur_state))
+        new_buffer = copy.deepcopy(buffer)
     except Exception:
         raise FunctionRunError('running error')
     finally:
