@@ -75,10 +75,8 @@ model = chat
 }
 ```
 
-### 2.2.2 文本 -> 文本+action
+### 2.2.2 文本 -> 文本 + sys_da
 **model**
-- multiwoz_svm_rule_rule_temp
-- camrest_svm_rule_rule_temp
 - multiwoz_mdbt_rule_temp
 
 **发送**
@@ -92,11 +90,11 @@ model = chat
 ```json
 {
     "resp": "request utterance",
-    "action": {...}
+    "sys_da": {...}
 }
 ```
 
-### 2.2.3 usr_DA -> 文本+action
+### 2.2.3 文本 or usr_da -> 文本 + sys_da + usr_da
 **model**
 - multiwoz_svm_rule_rule_temp
 - camrest_svm_rule_rule_temp
@@ -104,7 +102,11 @@ model = chat
 **发送**
 ```json
 {
-    "da": {...}
+    "post": "post utterance"
+}
+or
+{
+    "usr_da": {...}
 }
 ```
 
@@ -112,7 +114,8 @@ model = chat
 ```json
 {
     "resp": "request utterance",
-    "action": {...}
+    "sys_da": {...},
+    "usr_da": {...}
 }
 ```
 

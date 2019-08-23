@@ -70,8 +70,8 @@ def inference(input: dict, buffer: dict) -> (dict, dict):
         sys_agent.tracker.state = cur_state['tra']
         sys_agent.policy.policy.last_state = cur_state['pol']
 
-        action = sys_agent.response(input['post'])
-        resp = nlg.generate(action)
+        sys_action = sys_agent.response(input['post'])
+        resp = nlg.generate(sys_action)
 
         buffer['states'].append({'tra': sys_agent.tracker.state, 'pol': sys_agent.policy.policy.last_state})
         new_buffer = copy.deepcopy(buffer)
@@ -82,7 +82,7 @@ def inference(input: dict, buffer: dict) -> (dict, dict):
 
     print('output state:' + str(new_buffer))
     # back
-    output = {'resp': resp, 'action': action}
+    output = {'resp': resp, 'sys_da': sys_action}
 
     return output, new_buffer
 

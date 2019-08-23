@@ -53,7 +53,7 @@ def inference(input: dict, buffer: dict) -> (dict, dict):
         return output, new_buffer
 
     # 这里通过input作为输入，计算得到output结果
-    if 'post' not in input.keys() and 'da' not in input.keys():
+    if 'post' not in input.keys() and 'usr_da' not in input.keys():
         raise FunctionRunError('Missing argument in input')
 
     print('[opt: normal]')
@@ -70,13 +70,13 @@ def inference(input: dict, buffer: dict) -> (dict, dict):
         sys_agent.tracker.state = cur_state['tra']
         sys_agent.policy.policy.last_state = cur_state['pol']
 
-        if 'da' in input.keys():
-            dialog_act = input['da']
+        if 'usr_da' in input.keys():
+            usr_action = input['usr_da']
         else:
-            dialog_act = nlu.predict(input['post'])
+            usr_action = nlu.predict(input['post'])
 
-        action = sys_agent.response(dialog_act)
-        resp = nlg.generate(action)
+        sys_action = sys_agent.response(usr_action)
+        resp = nlg.generate(sys_action)
 
         buffer['states'].append({'tra': sys_agent.tracker.state, 'pol': sys_agent.policy.policy.last_state})
         new_buffer = copy.deepcopy(buffer)
@@ -87,7 +87,7 @@ def inference(input: dict, buffer: dict) -> (dict, dict):
 
     print('output state:' + str(new_buffer))
     # back
-    output = {'resp': resp, 'action': action}
+    output = {'resp': resp, 'sys_da': sys_action, 'usr_da': usr_action}
 
     return output, new_buffer
 
