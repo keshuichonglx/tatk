@@ -26,7 +26,7 @@ from DeployClient import DeployClient, FunctionRunError, MyLock
 app = DeployClient(module_name=__name__, port=7777, max_items=1000, expire_sec=600)
 
 # 这里进行模型的实例化或一些模型必要的加载和初始化工作
-nlu = SVMNLU('usr', model_file=os.path.join(root_dir, 'res/svm_multiwoz_usr.zip'))
+nlu = SVMNLU('usr')
 dst = RuleDST()
 policy = Rule()
 nlg = TemplateNLG(is_user=False)
