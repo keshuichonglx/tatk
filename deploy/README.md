@@ -48,7 +48,7 @@
    |:---|:---|:---:|
    |`class_path`|Target model class relative path|_not default_|
    |`data_set`|The data set used by the model|_not default_|
-   |`ini_params`|Target model class relative path|`{}`|
+   |`ini_params`|The parameters required for the class to be instantiated|`{}`|
    |`model_name`|Model name displayed on the front end|model key|
    |`max_core`|The maximum number of cores this model allows to start|1|
    |`enable`|If false, the system will ignore this configuration|`true`
